@@ -1,0 +1,133 @@
+/* DAS · Controller — panneau de diagnostic. Tout aspect passe par une variable --dctl-*. */
+.dctl-diagnostic {
+  --dctl-off: rgba(255, 255, 255, 0.08);
+  --dctl-on: #c9a24a;
+  --dctl-on-text: #1a1a1a;
+  --dctl-ring: rgba(255, 255, 255, 0.35);
+}
+.dctl-diag { display: flex; flex-direction: column; gap: 0.6rem; }
+.dctl-diag__pads { margin: 0; padding-left: 1.2rem; font-size: 0.85em; }
+.dctl-diag__pads button { margin-left: 0.4rem; padding: 0 0.4rem; line-height: 1.4; width: auto; }
+.dctl-diag__buttons { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.dctl-btn {
+  min-width: 2.4rem; padding: 0.2rem 0.4rem; text-align: center; border-radius: 0.3rem;
+  background: var(--dctl-off); border: 1px solid var(--dctl-ring);
+}
+.dctl-btn.is-down { background: var(--dctl-on); color: var(--dctl-on-text); }
+.dctl-diag__analog { display: flex; gap: 1rem; align-items: center; }
+.dctl-stick {
+  position: relative; width: 72px; height: 72px; border-radius: 50%;
+  border: 1px solid var(--dctl-ring); background: var(--dctl-off);
+}
+.dctl-stick i {
+  position: absolute; left: 30px; top: 30px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--dctl-on);
+}
+.dctl-stick span { position: absolute; bottom: -1.3rem; width: 100%; text-align: center; font-size: 0.8em; }
+.dctl-trigger {
+  position: relative; width: 80px; height: 1.2rem; border: 1px solid var(--dctl-ring); background: var(--dctl-off);
+}
+.dctl-trigger b { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--dctl-on); }
+.dctl-trigger span { position: relative; padding-left: 0.3rem; font-size: 0.8em; }
+.dctl-diag__log { margin: 0.8rem 0 0; padding-left: 1.2rem; min-height: 8em; font-family: monospace; font-size: 0.85em; }
+
+/* Curseur virtuel (ui/cursor.mjs) : au-dessus de tout, transparent aux clics. */
+.dctl-cursor {
+  --dctl-cursor-fill: #f4e9cf;
+  --dctl-cursor-stroke: #1a1a1a;
+  --dctl-cursor-down: #c9a24a;
+  position: fixed; left: 0; top: 0; z-index: 2147483647;
+  pointer-events: none; opacity: 0; transition: opacity 120ms;
+  margin: -2px 0 0 -3px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+.dctl-cursor.is-shown { opacity: 1; }
+.dctl-cursor path { fill: var(--dctl-cursor-fill); stroke: var(--dctl-cursor-stroke); stroke-width: 1.5; stroke-linejoin: round; }
+.dctl-cursor.is-down path { fill: var(--dctl-cursor-down); }
+
+/* Roue d'actions (ui/wheel.mjs) : centrée, au-dessus de l'interface, sans images reprises. */
+.dctl-wheel {
+  --dctl-wheel-bg: rgba(12, 10, 8, 0.82);
+  --dctl-wheel-ring: rgba(201, 162, 74, 0.55);
+  --dctl-wheel-slot: rgba(30, 26, 20, 0.95);
+  --dctl-wheel-selected: #c9a24a;
+  --dctl-wheel-bonus: #d8892b;
+  --dctl-wheel-reaction: #8b5fbf;
+  --dctl-wheel-text: #f4e9cf;
+  --dctl-wheel-muted: #b9ad94;
+  --dctl-wheel-warn: #e07a5f;
+  position: fixed; inset: 0; z-index: 2147483000; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem;
+  color: var(--dctl-wheel-text); font-family: var(--font-primary, sans-serif);
+}
+.dctl-wheel[hidden] { display: none; }
+.dctl-wheel__disc {
+  position: relative; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, var(--dctl-wheel-bg) 55%, rgba(12, 10, 8, 0.55) 72%, transparent 73%);
+  border: 2px solid var(--dctl-wheel-ring);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+.dctl-wheel__slot {
+  position: absolute; left: calc(50% - 30px); top: calc(50% - 30px); width: 60px; height: 60px;
+  border-radius: 10px; background: var(--dctl-wheel-slot); border: 2px solid var(--dctl-wheel-ring);
+  transition: transform 80ms, border-color 80ms, box-shadow 80ms;
+}
+.dctl-wheel__slot img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; border: none; }
+.dctl-wheel__slot.is-bonus { border-color: var(--dctl-wheel-bonus); }
+.dctl-wheel__slot.is-reaction { border-color: var(--dctl-wheel-reaction); }
+.dctl-wheel__slot.is-disabled img { filter: grayscale(1) brightness(0.55); }
+.dctl-wheel__slot.is-selected {
+  border-color: var(--dctl-wheel-selected); box-shadow: 0 0 0 3px var(--dctl-wheel-selected), 0 0 18px var(--dctl-wheel-selected);
+  z-index: 1;
+}
+.dctl-wheel__badge {
+  position: absolute; right: -6px; bottom: -6px; padding: 0 4px; border-radius: 6px; font-size: 0.75rem;
+  background: var(--dctl-wheel-bg); border: 1px solid var(--dctl-wheel-ring);
+}
+.dctl-wheel__level { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.dctl-wheel__level b { font-size: 1.2rem; }
+.dctl-wheel__level span { display: flex; gap: 2px; }
+.dctl-wheel__level i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--dctl-wheel-selected); }
+.dctl-wheel__level i.on { background: var(--dctl-wheel-selected); }
+.dctl-wheel__center {
+  position: absolute; left: 50%; top: 50%; width: 170px; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+}
+.dctl-wheel__center strong { font-size: 1.05rem; }
+.dctl-wheel__center span, .dctl-wheel__center small { color: var(--dctl-wheel-muted); font-size: 0.85rem; }
+.dctl-wheel__center em { color: var(--dctl-wheel-warn); font-style: normal; font-size: 0.85rem; }
+.dctl-wheel__pages, .dctl-wheel__prompts {
+  display: flex; gap: 0.6rem; align-items: center; padding: 0.3rem 0.8rem; margin: 0;
+  background: var(--dctl-wheel-bg); border-radius: 999px; font-size: 0.9rem;
+}
+.dctl-wheel__pages span { color: var(--dctl-wheel-muted); }
+.dctl-wheel__pages span.is-current { color: var(--dctl-wheel-selected); font-weight: bold; }
+.dctl-wheel kbd {
+  display: inline-block; min-width: 1.6em; padding: 0 0.3em; text-align: center; border-radius: 0.6em;
+  border: 1px solid var(--dctl-wheel-ring); background: var(--dctl-wheel-slot); color: var(--dctl-wheel-text); font-size: 0.8rem;
+}
+
+/* Indicateur de mode (ui/hint.mjs) : en haut au centre, sous la barre de navigation des scènes. */
+.dctl-hint {
+  --dctl-hint-top: 64px;
+  --dctl-hint-bg: rgba(12, 10, 8, 0.78);
+  --dctl-hint-ring: rgba(201, 162, 74, 0.55);
+  --dctl-hint-text: #f4e9cf;
+  --dctl-hint-muted: #b9ad94;
+  --dctl-hint-flash: #c9a24a;
+  position: fixed; top: var(--dctl-hint-top); left: 50%; transform: translateX(-50%); z-index: 2147482000;
+  pointer-events: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.8rem;
+  border-radius: 999px; background: var(--dctl-hint-bg); border: 1px solid var(--dctl-hint-ring);
+  color: var(--dctl-hint-text); font-size: 0.85rem; transition: box-shadow 200ms, border-color 200ms;
+}
+.dctl-hint[hidden] { display: none; }
+.dctl-hint span { color: var(--dctl-hint-muted); }
+.dctl-hint kbd {
+  display: inline-block; min-width: 1.6em; padding: 0 0.3em; text-align: center; border-radius: 0.6em;
+  border: 1px solid var(--dctl-hint-ring); font-size: 0.75rem; color: var(--dctl-hint-text);
+}
+.dctl-hint.is-flash { border-color: var(--dctl-hint-flash); box-shadow: 0 0 14px var(--dctl-hint-flash); }
+
+/* Pointeur du système masqué pendant que le curseur de la manette est affiché (ui/cursor.mjs). `!important` passe devant le
+   style en ligne que PIXI pose sur la toile (EventSystem#setCursor). */
+.dctl-hide-mouse, .dctl-hide-mouse * { cursor: none !important; }

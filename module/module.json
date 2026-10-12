@@ -1,0 +1,58 @@
+{
+  "id": "darsh-controller",
+  "title": "DAS · Controller",
+  "description": "Play Foundry VTT with a gamepad in Darshyne's Automation Suite (DAS), with Baldur's Gate 3-style controls: walk your character with the left stick, a selection cursor that snaps to buttons and tokens, an action wheel fed by the DAS · Combat UI Bar, target cycling, end turn. Alpha, Xbox controller on Windows first.",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Darshyne"
+    }
+  ],
+  "url": "https://github.com/Darshyne/darsh-controller",
+  "license": "https://github.com/Darshyne/darsh-controller/blob/main/LICENSE",
+  "manifest": "https://github.com/Darshyne/darsh-controller/releases/latest/download/module.json",
+  "download": "https://github.com/Darshyne/darsh-controller/releases/latest/download/module.zip",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.367"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "6.0.0"
+        }
+      }
+    ],
+    "recommends": [
+      {
+        "id": "darsh-dnd-ui",
+        "type": "module",
+        "reason": "The action wheel reads the DAS · Combat UI Bar.",
+        "compatibility": {
+          "minimum": "0.21.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/darsh-controller.mjs"
+  ],
+  "styles": [
+    "styles/darsh-controller.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ]
+}
