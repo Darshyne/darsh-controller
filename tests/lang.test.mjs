@@ -18,23 +18,28 @@ function usedKeys() {
 }
 
 describe("fichiers de langue", () => {
-  for ( const lang of ["fr", "en"] ) {
+  for ( const lang of ["fr", "en", "pt-BR"] ) {
     it(`${lang} : chaque clé demandée existe`, () => {
       const json = JSON.parse(readFileSync(join(ROOT, `lang/${lang}.json`), "utf8"));
       expect(Array.from(usedKeys()).filter(k => !(k in json))).toEqual([]);
     });
   }
 
-  it("fr et en ont les mêmes clés et les mêmes {paramètres}", () => {
-    const fr = JSON.parse(readFileSync(join(ROOT, "lang/fr.json"), "utf8"));
+  it("en, fr et pt-BR ont les mêmes clés et les mêmes {paramètres}", () => {
     const en = JSON.parse(readFileSync(join(ROOT, "lang/en.json"), "utf8"));
-    expect(Object.keys(fr).sort()).toEqual(Object.keys(en).sort());
-    const params = s => (String(s).match(/\{[a-zA-Z]+\}/g) ?? []).sort();
-    for ( const k of Object.keys(fr) ) expect(params(fr[k]), k).toEqual(params(en[k]));
+    const params = s => (String(s).match(/\\{[a-zA-Z]+\\}/g) ?? []).sort();
+    for ( const lang of ["fr", "pt-BR"] ) {
+      const translated = JSON.parse(readFileSync(join(ROOT, `lang/${lang}.json`), "utf8"));
+      expect(Object.keys(translated).sort()).toEqual(Object.keys(en).sort());
+      for ( const k of Object.keys(en) ) {
+        expect(String(translated[k]).trim(), `${lang}: ${k}`).not.toBe("");
+        expect(params(translated[k]), `${lang}: ${k}`).toEqual(params(en[k]));
+      }
+    }
   });
 
-  it("module.json liste les deux langues", () => {
+  it("module.json liste les trois langues", () => {
     const manifest = JSON.parse(readFileSync(join(ROOT, "module.json"), "utf8"));
-    expect(manifest.languages.map(l => l.lang).sort()).toEqual(["en", "fr"]);
+    expect(manifest.languages.map(l => l.lang).sort()).toEqual(["en", "fr", "pt-BR"]);
   });
 });
