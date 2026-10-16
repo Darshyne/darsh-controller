@@ -27,7 +27,7 @@ describe("fichiers de langue", () => {
 
   it("en, fr et pt-BR ont les mêmes clés et les mêmes {paramètres}", () => {
     const en = JSON.parse(readFileSync(join(ROOT, "lang/en.json"), "utf8"));
-    const params = s => (String(s).match(/\\{[a-zA-Z]+\\}/g) ?? []).sort();
+    const params = s => (String(s).match(/\{[a-zA-Z]+\}/g) ?? []).sort();
     for ( const lang of ["fr", "pt-BR"] ) {
       const translated = JSON.parse(readFileSync(join(ROOT, `lang/${lang}.json`), "utf8"));
       expect(Object.keys(translated).sort()).toEqual(Object.keys(en).sort());
