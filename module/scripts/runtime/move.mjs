@@ -6,8 +6,10 @@
  *
  * Chaque marche passe par `api.approach` (portes, cases occupées, attaques d'opportunité, mouvement du tour) ; sans moteur,
  * par le déplacement du cœur (`TokenDocument#move`). Une direction refusée n'est pas réessayée tant que le stick la garde.
+ * Un grimpeur (au mur, au plafond : moteur §196) marche à sa hauteur, le long du mur ou sous le plafond — jamais vers une case où il ne
+ * tiendrait (`api.climb.holds`) : la marche s'arrête avant, et une direction sans prise est refusée comme un mur.
  */
-import { direction8, sameDirection, lineAhead, farthestOpen } from "../core/move.mjs";
+import { direction8, sameDirection, lineAhead, farthestOpen, blockedOrLoose } from "../core/move.mjs";
 import * as board from "../adapter/canvas.mjs";
 import * as engine from "../adapter/engine.mjs";
 import { log } from "../shared.mjs";
@@ -25,7 +27,9 @@ async function walk(dir) {
   const token = board.myToken();
   if ( !token ) return;
   const start = board.cellOf(token);
-  const target = farthestOpen(start, lineAhead(start, dir), board.stepBlocked);
+  // En escalade (moteur §196), la ligne s'arrête à la dernière case où le grimpeur tient : le long du mur, sous le plafond.
+  const holds = cell => engine.climbHolds(token.document, cell);
+  const target = farthestOpen(start, lineAhead(start, dir), blockedOrLoose(board.stepBlocked, holds));
   if ( !target ) {
     blocked = dir;
     return;

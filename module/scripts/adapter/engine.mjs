@@ -30,6 +30,16 @@ export async function approach(tokenDocument, cells) {
   return fn(tokenDocument, { cells });
 }
 
+/**
+ * Un grimpeur tiendrait-il sur cette case, à sa hauteur (`api.climb.holds`, moteur §196 : le long d'un mur, sous le plafond) ? Toujours
+ * vrai pour qui ne grimpe pas, ou sans moteur qui le publie.
+ */
+export function climbHolds(tokenDocument, cell) {
+  const fn = api()?.climb?.holds;
+  if ( typeof fn !== "function" ) return true;
+  try { return fn(tokenDocument, cell) !== false; } catch { return true; }
+}
+
 /** Arrête les marches du moteur lancées par ce client, à la prochaine case (`api.stopWalks`, moteur §39). */
 export function stopWalks() {
   api()?.stopWalks?.();

@@ -58,3 +58,16 @@ describe("marche fluide", () => {
     expect(farthestOpen({ i: 0, j: 0 }, cells, () => true)).toBeNull();
   });
 });
+
+describe("escalade : la marche au stick reste où le grimpeur tient (moteur §196)", () => {
+  it("la ligne s'arrête à la dernière case tenue, comme devant un mur", async () => {
+    const { blockedOrLoose, farthestOpen, lineAhead } = await import("../module/scripts/core/move.mjs");
+    const start = { i: 4, j: 6 };
+    const along = lineAhead(start, { di: 1, dj: 0 }, 6);
+    const wall = (from, to) => false;
+    const holds = cell => cell.i <= 6;   // le mur s'arrête après la rangée 6
+    expect(farthestOpen(start, along, blockedOrLoose(wall, holds))).toEqual({ i: 6, j: 6 });
+    expect(farthestOpen(start, lineAhead(start, { di: 0, dj: -1 }, 6), blockedOrLoose(wall, cell => cell.j === 6))).toBe(null);
+    expect(farthestOpen(start, along, blockedOrLoose(wall))).toEqual({ i: 10, j: 6 });
+  });
+});

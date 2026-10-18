@@ -32,6 +32,15 @@ export function lineAhead(cell, dir, n = WALK_AHEAD) {
 }
 
 /**
+ * Escalade (SPEC §0, 2026-10-18 ; moteur §196) : un pas est bloqué par un mur ou le bord de la scène (`blocked`), ou parce que le
+ * grimpeur ne tiendrait pas sur la case d'arrivée (`holds` faux : plus de mur au mur, plus de plafond au plafond). Rend le prédicat
+ * combiné pour `farthestOpen`.
+ */
+export function blockedOrLoose(blocked, holds = () => true) {
+  return (from, to) => blocked(from, to) || !holds(to);
+}
+
+/**
  * La dernière case atteignable en ligne droite : on avance tant que `blocked(from, to)` est faux (mur, bord de la scène).
  * @returns {{i:number, j:number}|null}  null si la première case est déjà bloquée
  */
