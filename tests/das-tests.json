@@ -1,0 +1,20 @@
+{
+  "i18n": {
+    "namespaces": ["DCTL"],
+    "calls": [{ "fn": "loc", "prefix": "DCTL." }],
+    "minKeys": 18
+  },
+  "layers": {
+    "imports": {
+      "core": [".", "adapter", "runtime", "ui"],
+      "adapter": ["runtime", "ui"],
+      "runtime": ["ui"]
+    },
+    "pure": { "folders": ["core"], "globals": ["navigator.", "document.", "window."] },
+    "names": [
+      { "name": "dnd5e-combat", "only": ["adapter/engine.mjs"], "why": "le moteur n'est nommé que dans son adaptateur (SPEC §2-6)" },
+      { "name": "darsh-dnd-ui", "only": ["adapter/ui.mjs"], "why": "l'interface n'est nommée que dans son adaptateur (SPEC §2-6)" }
+    ],
+    "forbid": [{ "name": "ecritures", "pattern": "\\.(?:update|setFlag|unsetFlag|createEmbeddedDocuments|deleteEmbeddedDocuments|toggleStatusEffect)\\(", "why": "rien n'écrit dans un document (SPEC §2-4)" }]
+  }
+}
